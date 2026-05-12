@@ -14,12 +14,42 @@ export default function Onboarding() {
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
   const [registration, setRegistration] = useState('');
   const [odometer, setOdometer] = useState('0');
+  const [ridingStyle, setRidingStyle] = useState('balanced');
+  const [serviceHistory, setServiceHistory] = useState({
+    engineOil: { lastChangedDate: '', lastChangedKm: '', unknown: false },
+    brakePads: { lastChangedDate: '', lastChangedKm: '', unknown: false },
+    airFilter: { lastChangedDate: '', lastChangedKm: '', unknown: false },
+    tireReplacement: { lastChangedDate: '', lastChangedKm: '', unknown: false },
+    batteryReplacement: { lastChangedDate: '', lastChangedKm: '', unknown: false },
+    cvtBeltReplacement: { lastChangedDate: '', lastChangedKm: '', unknown: false },
+    coolantChange: { lastChangedDate: '', lastChangedKm: '', unknown: false },
+  });
   const [errors, setErrors] = useState({});
 
   const selectedVehicle = selectedVehicleId ? getVehicleById(selectedVehicleId) : null;
 
   const handleVehicleSelect = (vehicleId) => {
     setSelectedVehicleId(vehicleId);
+  };
+
+  const maintenanceFields = [
+    { key: 'engineOil', label: 'Engine oil last changed' },
+    { key: 'brakePads', label: 'Brake pads last changed' },
+    { key: 'airFilter', label: 'Air filter last changed' },
+    { key: 'tireReplacement', label: 'Tire replacement' },
+    { key: 'batteryReplacement', label: 'Battery replacement' },
+    { key: 'cvtBeltReplacement', label: 'CVT belt replacement' },
+    { key: 'coolantChange', label: 'Coolant change' },
+  ];
+
+  const handleHistoryChange = (key, field, value) => {
+    setServiceHistory((prev) => ({
+      ...prev,
+      [key]: {
+        ...prev[key],
+        [field]: value,
+      },
+    }));
   };
 
   const handleContinue = () => {
@@ -49,6 +79,8 @@ export default function Onboarding() {
       updateBikeProfile({
         registration,
         currentOdometer: parseInt(odometer) || 0,
+        ridingStyle,
+        serviceHistory,
       });
       setStep('complete');
     }
@@ -175,6 +207,84 @@ export default function Onboarding() {
                   />
                   <p className="mt-1 text-xs text-gray-500">Leave at 0 if you're starting fresh</p>
                 </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-400">Your riding style</label>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {['relaxed', 'balanced', 'sport', 'aggressive'].map((style) => {
+                      const label = style === 'relaxed' ? 'Relaxed' : style === 'balanced' ? 'Balanced' : style === 'sport' ? 'Sport' : 'Aggressive';
+                      const active = ridingStyle === style;
+                      return (
+                        <button
+                          key={style}
+                          type="button"
+                          onClick={() => setRidingStyle(style)}
+                          className={`rounded-3xl border px-4 py-3 text-left text-sm transition ${active ? 'border-accent-from bg-accent-from/10 text-white' : 'border-white/10 bg-white/5 text-gray-300 hover:border-accent-from/30 hover:bg-white/10'}`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500">This helps RevSync estimate maintenance wear more accurately.</p>
+                </div>
+              </div>
+            </GlassCard>
+
+            <GlassCard className="p-5 sm:p-8">
+              <div className="mb-6">
+                <p className="text-xs uppercase tracking-[0.3em] text-accent-from/80">Step 3 of 3</p>
+                <h2 className="mt-4 text-2xl font-semibold">Record your recent service history</h2>
+                <p className="mt-3 text-sm text-gray-400">If you're unsure, choose 'Don't remember' and RevSync will use conservative estimates.</p>
+              </div>
+
+              <div className="space-y-5">
+                {maintenanceFields.map((item) => {
+                  const entry = serviceHistory[item.key];
+                  return (
+                    <div key={item.key} className="rounded-[24px] border border-white/10 bg-[#0b0b17]/80 p-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-white">{item.label}</p>
+                          <p className="mt-1 text-sm text-gray-400">Optional but helps the system estimate wear and inspection timing.</p>
+                        </div>
+                        <label className="inline-flex items-center gap-2 text-sm text-gray-400">
+                          <input
+                            type="checkbox"
+                            checked={entry.unknown}
+                            onChange={(e) => handleHistoryChange(item.key, 'unknown', e.target.checked)}
+                            className="h-4 w-4 rounded border-white/20 bg-[#06060f] text-accent-from focus:ring-accent-from"
+                          />
+                          Don't remember
+                        </label>
+                      </div>
+
+                      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-gray-400">Date</label>
+                          <input
+                            type="date"
+                            value={entry.lastChangedDate}
+                            disabled={entry.unknown}
+                            onChange={(e) => handleHistoryChange(item.key, 'lastChangedDate', e.target.value)}
+                            className="w-full rounded-3xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition disabled:cursor-not-allowed disabled:opacity-60 focus:border-accent-from focus:ring-2 focus:ring-accent-from/20"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-gray-400">Odometer (km)</label>
+                          <input
+                            type="number"
+                            value={entry.lastChangedKm}
+                            disabled={entry.unknown}
+                            onChange={(e) => handleHistoryChange(item.key, 'lastChangedKm', e.target.value)}
+                            placeholder="0"
+                            className="w-full rounded-3xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition disabled:cursor-not-allowed disabled:opacity-60 focus:border-accent-from focus:ring-2 focus:ring-accent-from/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </GlassCard>
 

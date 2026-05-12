@@ -11,9 +11,9 @@ const profileStats = [
     icon: null,
   },
   {
-    title: 'Insurance Expiry',
-    value: bikeProfile.insuranceExpiry,
-    description: 'Renew before the ride season',
+    title: 'Riding style',
+    value: bikeProfile.ridingStyle?.charAt(0).toUpperCase() + bikeProfile.ridingStyle?.slice(1) || 'Balanced',
+    description: 'Typical rider behavior',
     icon: null,
   },
   {
@@ -124,6 +124,30 @@ export default function Profile() {
                   <p className="text-[11px] uppercase tracking-[0.24em] text-gray-500">{item.title}</p>
                   <p className="mt-3 text-xl font-semibold text-white">{item.value}</p>
                   <p className="mt-2 text-sm text-gray-400">{item.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[32px] border border-white/10 bg-white/5 p-5 shadow-glass backdrop-blur-2xl sm:p-8">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Service memory</p>
+                <h2 className="mt-2 text-2xl font-semibold text-white">Recent maintenance history</h2>
+              </div>
+              <span className="rounded-full bg-accent-from/10 px-4 py-2 text-sm font-semibold text-accent-from">{bikeProfile.ridingStyle?.charAt(0).toUpperCase() + bikeProfile.ridingStyle?.slice(1)} rider</span>
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Object.entries(bikeProfile.serviceHistory || {}).map(([key, entry]) => (
+                <div key={key} className="rounded-[28px] border border-white/10 bg-[#0b0b17]/80 p-4">
+                  <p className="text-xs uppercase tracking-[0.24em] text-gray-500">{key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}</p>
+                  <p className="mt-3 text-sm font-semibold text-white">
+                    {entry.unknown ? 'Unknown' : entry.lastChangedDate || 'Not recorded'}
+                  </p>
+                  <p className="mt-2 text-sm text-gray-400">
+                    {entry.unknown ? 'Manual inspection recommended' : entry.lastChangedKm ? `${entry.lastChangedKm.toLocaleString()} km` : 'Odometer not provided'}
+                  </p>
                 </div>
               ))}
             </div>
