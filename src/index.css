@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-primary text-white antialiased;
+    background-image:
+      radial-gradient(circle at top left, rgba(138, 43, 226, 0.2), transparent 22%),
+      radial-gradient(circle at bottom right, rgba(95, 158, 160, 0.16), transparent 24%),
+      radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 30%);
+    background-color: #05050f;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-2xl rounded-[28px] border border-white/10 shadow-glass;
+  }
+
+  .gradient-btn {
+    @apply bg-gradient-to-r from-accent-from to-accent-to text-white font-semibold rounded-2xl shadow-2xl;
+    box-shadow: 0 25px 50px -12px rgba(138, 43, 226, 0.2);
+  }
+}
