@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { getBikeProfile } from '../data/bikeProfile';
+import { isAuthenticated } from '../data/auth';
 
 export default function Splash() {
   const navigate = useNavigate();

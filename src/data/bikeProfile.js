@@ -21,6 +21,7 @@ const defaultProfile = {
   bikeHealthScore: 94,
   fuelEfficiency: 36,
   ridingStyle: 'balanced',
+  onboardingComplete: false,
   serviceHistory: {
     engineOil: { lastChangedDate: '2026-05-04', lastChangedKm: 7900, unknown: false },
     brakePads: { lastChangedDate: '2026-04-02', lastChangedKm: 8430, unknown: false },

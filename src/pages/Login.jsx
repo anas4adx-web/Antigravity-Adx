@@ -1,19 +1,45 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, LogIn, Chrome } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import Input from '../components/Input';
 import GradientButton from '../components/GradientButton';
+import { getBikeProfile } from '../data/bikeProfile';
+import { getUserForCredentials, setSession, validateCredentials, isAuthenticated } from '../data/auth';
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      const profile = getBikeProfile();
+      navigate(profile.onboardingComplete ? '/dashboard' : '/onboarding');
+    }
+  }, [navigate]);
 
   const handleLogin = (e) => {
     e.preventDefault();
-    navigate('/onboarding');
+
+    if (!validateCredentials(email.trim(), password)) {
+      setLoginError('Invalid email or password. Please use one of the demo accounts.');
+      return;
+    }
+
+    const user = getUserForCredentials(email.trim(), password);
+    if (!user) {
+      setLoginError('Invalid email or password. Please use one of the demo accounts.');
+      return;
+    }
+
+    setSession({ email: user.email, name: user.name });
+    setLoginError('');
+
+    const profile = getBikeProfile();
+    navigate(profile.onboardingComplete ? '/dashboard' : '/onboarding');
   };
 
   return (
@@ -69,6 +95,12 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+
+            {loginError && (
+              <div className="rounded-[24px] border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-200">
+                {loginError}
+              </div>
+            )}
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <button type="button" className="text-sm text-accent-from transition hover:text-white">
